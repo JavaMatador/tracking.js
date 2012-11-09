@@ -13,7 +13,11 @@
 
             blockScale: 1.25,
 
-            data: 'frontal_face'
+            data: 'frontal_face',
+
+            minNeighborArea: 0.5,
+
+            minNeighbors: 3
         },
 
         evalStage_: function(stage, integralImage, integralImageSquare, i, j, width, height, blockSize) {
@@ -94,6 +98,101 @@
             return (stageSum > stageThreshold);
         },
 
+        merge_: function(rects, video) {
+            var instance = this,
+                defaults = instance.defaults,
+                minNeighborArea = defaults.minNeighborArea,
+                minNeighbors = defaults.minNeighbors,
+                rectsLen = rects.length,
+                i,
+                j,
+                x1,
+                y1,
+                blockSize1,
+                x2,
+                y2,
+                x3,
+                y3,
+                x4,
+                y4,
+                blockSize2,
+                px1,
+                py1,
+                px2,
+                py2,
+                pArea,
+                group = 0,
+                importantGroupCounter;
+                importantGroups = {},
+                faces = [];
+
+            for (i = 0; i < rectsLen; i+=4) {
+                x1 = rects[i + 0];
+                y1 = rects[i + 1];
+                blockSize1 = rects[i + 2];
+
+                x2 = x1 + blockSize1;
+                y2 = y1 + blockSize1;
+
+                if (rects[i + 3]) {
+                    continue;
+                }
+
+                group++;
+                importantGroupCounter = 0;
+
+                for (j = 0; j < rectsLen; j+=4) {
+                    if (i === j && rects[j + 3]) {
+                        continue;
+                    }
+
+                    x3 = rects[j + 0];
+                    y3 = rects[j + 1];
+                    blockSize2 = rects[j + 2];
+
+                    x4 = x3 + blockSize2;
+                    y4 = y3 + blockSize2;
+
+                    px1 = Math.max(x1, x3);
+                    py1 = Math.max(y1, y3);
+
+                    px2 = Math.min(x2, x4);
+                    py2 = Math.min(y2, y4);
+
+                    pArea = Math.abs(px1 - px2)*Math.abs(py1 - py2);
+
+                    video.canvas.context.strokeStyle = "rgb(0,255,0)";
+                    video.canvas.context.strokeRect(px1, py1, Math.abs(px1 - px2), Math.abs(py1 - py2));
+
+                    if ((pArea/(blockSize1*blockSize1) >= minNeighborArea) &&
+                        (pArea/(blockSize2*blockSize2) >= minNeighborArea)) {
+
+                        rects[i + 3] = group;
+                        rects[j + 3] = group;
+                        importantGroupCounter++;
+
+                        if (importantGroupCounter >= minNeighbors) {
+                            importantGroups[group] = importantGroupCounter;
+                        }
+                    }
+                }
+            }
+
+            var groups = {}, counter = 0, x1Result = 0, y1Result = 0, x2Result = 0, y2Result = 0;
+
+            for (i = 0; i < rectsLen; i+=4) {
+                group = rects[i + 3];
+
+                if (importantGroups[group]) {
+                    for (j = 0; j < rectsLen; j+=4) {
+
+                    }
+                }
+            }
+
+            return faces;
+        },
+
         track: function(trackerGroup, video) {
             var instance = this,
                 config = trackerGroup[0],
@@ -145,7 +244,9 @@
                 blockJump = defaults.blockJump,
                 blockScale = defaults.blockScale,
                 blockSize = defaults.blockSize,
-                maxBlockSize = Math.min(width, height);
+                maxBlockSize = Math.min(width, height),
+                rectIndex = 0,
+                rects = [];
 
             for (; blockSize <= maxBlockSize; blockSize = ~~(blockSize*blockScale)) {
                 for (i = 0; i < (height - blockSize); i+=blockJump) {
@@ -163,6 +264,11 @@
                         }
 
                         if (pass) {
+                            rects[rectIndex++] = j;
+                            rects[rectIndex++] = i;
+                            rects[rectIndex++] = blockSize;
+                            rects[rectIndex++] = 0;
+
                             console.log('ROSTO');
                             // canvas.setImageData(imageData);
                             canvas.context.strokeStyle = "rgb(255,0,0)";
@@ -171,6 +277,12 @@
                     }
                 }
             }
+
+            // console.log(rects);
+
+            var faces = instance.merge_(rects, video);
+
+            // console.log(faces);
         }
 
     };
