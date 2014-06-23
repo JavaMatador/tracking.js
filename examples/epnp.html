@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+
+  <title>tracking.js - hello world</title>
+
+  <meta charset="utf-8">
+
+  <script src="../build/tracking.js"></script>
+
+  <style>
+  #rect {
+    border: 2px solid magenta;
+    height: 80px;
+    left: -1000px;
+    position: absolute;
+    top: -1000px;
+    width: 120px;
+  }
+  </style>
+</head>
+<body>
+  <div id="rect"></div>
+  <img id="img" src="assets/psmove.png" />
+
+  <script>
+    var m = [];
+
+    for (var i = 0; i < 2; i++) {
+      m.push(Math.floor(Math.random()*2 + 2));
+    }
+
+    var matrix = new tracking.Matrix({
+      matrix: [[2, 3, 2, 3, 3, 2, 3, 3, 3, 3, 2, 3],
+              [3, 2, 2, 2, 3, 3, 3, 2, 3, 2, 3, 2],
+              [2, 2, 2, 2, 2, 3, 2, 3, 2, 3, 2, 3],
+              [3, 2, 2, 2, 2, 3, 3, 3, 3, 3, 2, 3],
+              [2, 3, 2, 3, 2, 3, 2, 2, 2, 3, 2, 3],
+              [2, 3, 2, 2, 3, 2, 3, 2, 2, 3, 2, 2],
+              [3, 3, 3, 2, 2, 2, 2, 3, 3, 3, 2, 3],
+              [3, 3, 2, 2, 3, 3, 2, 2, 3, 2, 3, 3],
+              [2, 3, 2, 3, 3, 2, 3, 3, 3, 3, 2, 3],
+              [2, 3, 2, 3, 3, 2, 3, 3, 3, 3, 2, 3],
+              [2, 3, 2, 3, 3, 2, 3, 3, 3, 3, 2, 3],
+              [2, 3, 2, 3, 3, 2, 3, 3, 3, 3, 2, 3]]
+    });
+
+    // for (i = 0; i < 12; i++) {
+    //   for (var j = 0; j < 12; j++) {
+    //     matrix.data[i][j] = m[Math.floor(Math.random()*2)];
+    //   }
+    // }
+    
+    console.log(matrix.multiply(tracking.ePnP.findNullEigenVectors(matrix)[0]).toString());
+
+    var vector1 = new tracking.Vector({matrix: new tracking.Matrix({matrix: [[1], [2], [3]]})});
+    var vector2 = new tracking.Vector({matrix: new tracking.Matrix({matrix: [[2], [2], [2]]})});
+
+    console.log(vector1._matrix.subtract(vector2._matrix).toString());
+
+    // console.log(matrix.reducedRowEchelon().toString());
+  </script>
+
+</body>
+</html>

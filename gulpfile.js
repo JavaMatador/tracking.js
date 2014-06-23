@@ -28,9 +28,11 @@ gulp.task('build', function() {
     'src/Fast.js',
     'src/Math.js',
     'src/Matrix.js',
+    'src/Vector.js',
     'src/Tracker.js',
     'src/ColorTracker.js',
-    'src/HumanTracker.js'
+    'src/HumanTracker.js',
+    'src/KeypointTracker.js'
   ];
 
   return gulp.src(files)

@@ -4,7 +4,27 @@
    * @static
    * @constructor
    */
-  tracking.Matrix = {};
+  tracking.Matrix = function (obj) {
+    var instance = this,
+      matrix = obj.matrix,
+      rows = obj.rows,
+      cols = obj.cols;
+    
+    if (matrix) {
+      rows = matrix.length;
+      cols = matrix[0].length;
+    }
+    else {
+      matrix = new Array(rows);
+
+      for (var i = 0; i < rows; i++) {
+        matrix[i] = new Array(cols);
+      }
+    }
+    instance.data = matrix;
+    instance._rows = rows;
+    instance._cols = cols;
+  };
 
   /**
    * Loops the array organized as major-row order and executes `fn` callback for
@@ -54,4 +74,143 @@
     });
     return pixels;
   };
+
+  tracking.Matrix.prototype.multiply = function(matrix) {
+    var instance = this,
+      thisMatrix = instance.data,
+      thisRows = instance._rows,
+      thisCols = instance._cols,
+      thatMatrix = matrix.data,
+      thatCols = matrix._cols,
+      result = new tracking.Matrix({rows: thisRows, cols: thatCols}),
+      resultMatrix = result.data;
+
+    for (var i = thisRows - 1; i >= 0; i--) {
+      for (var j = thatCols - 1; j >= 0; j--) {
+        resultMatrix[i][j] = 0;// perguntar a galera sobre criar matriz zeradas
+        for (var k = thisCols - 1; k >= 0; k--) {
+          resultMatrix[i][j] += thisMatrix[i][k] * thatMatrix[k][j];
+        }
+      }
+    }
+
+    return result;
+  };
+
+  tracking.Matrix.prototype.subtract = function(matrix) {
+    var instance = this,
+      thisMatrix = instance.data,
+      thisRows = instance._rows,
+      thisCols = instance._cols,
+      thatMatrix = matrix.data,
+      result = new tracking.Matrix({rows: thisRows, cols: thisCols}),
+      resultMatrix = result.data;
+
+    for (var i = thisRows - 1; i >= 0; i--) {
+      for (var j = thisCols - 1; j >= 0; j--) {
+        resultMatrix[i][j] = thisMatrix[i][j] - thatMatrix[i][j];
+      }
+    }
+
+    return result;
+  };
+
+  tracking.Matrix.prototype.transpose = function () {
+    var instance = this,
+      thisRows = instance._rows,
+      thisCols = instance._cols,
+      matrix = instance.data,
+      result = new tracking.Matrix({rows: thisCols, cols: thisRows}),
+      resultMatrix = result.data;
+
+    for (var i = thisRows - 1; i >= 0; i--) {
+      for (var j = thisCols - 1; j >= 0; j--) {
+        resultMatrix[j][i] = matrix[i][j];
+      }
+    }
+    return result;
+  };
+
+  tracking.Matrix.prototype.rowEchelon = function () {
+    var instance = this,
+      thisRows = instance._rows,
+      thisCols = instance._cols,
+      matrix = instance.data;
+
+    for (var i = 0; i < thisRows; i++) {
+      for (var j = i + 1; j < thisRows; j++) {
+        for (var k = thisCols-1; k >= 0; k--) {
+          matrix[j][k] = matrix[j][k] - matrix[i][k]*matrix[j][i]/matrix[i][i];
+        }
+      }
+    }
+    return instance;
+  };
+
+  tracking.Matrix.prototype.reducedRowEchelon = function() {
+    var instance = this,
+        rows = instance._rows,
+        cols = instance._cols,
+        tempRow,
+        lead = 0,
+        val,
+        r,
+        i,
+        j;
+
+    for (r = 0; r < rows; r++) {
+      if (cols <= lead) {
+        return instance;
+      }
+      i = r;
+      while (instance.data[i][lead] === 0) {
+        i++;
+        if (rows === i) {
+          i = r;
+          lead++;
+          if (cols === lead) {
+            return instance;
+          }
+        }
+      }
+
+      tempRow = instance.data[i];
+      instance.data[i] = instance.data[r];
+      instance.data[r] = tempRow;
+
+      val = instance.data[r][lead];
+      for (j = 0; j < cols; j++) {
+        instance.data[r][j] /= val;
+      }
+
+      for (i = 0; i < rows; i++) {
+        if (i !== r) {
+          val = instance.data[i][lead];
+          for ( j = 0; j < cols; j++) {
+            instance.data[i][j] -= val * instance.data[r][j];
+          }
+        }
+      }
+      lead++;
+    }
+    return instance;
+  };
+
+  tracking.Matrix.prototype.toString = function () {
+    var instance = this,
+      thisRows = instance._rows,
+      thisCols = instance._cols,
+      matrix = instance.data,
+      result = '';
+
+    for (var i = 0; i < thisRows; i++) {
+      result += '[\t';
+      for (var j = 0; j < thisCols; j++) {
+        result += matrix[i][j] + '\t';
+      }
+      result += ']\n';
+    }
+    return result;
+  };
+
 }());

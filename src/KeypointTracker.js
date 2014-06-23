@@ -38,7 +38,7 @@
   };
 
   tracking.KeypointTracker.prototype.track = function(pixels, width, height) {
-      
+    
   };
 
 }());
