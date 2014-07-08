@@ -10,7 +10,7 @@
     var instance = this;
 
     if (!instance._cameraIntrisicParameters) {
-      instance._cameraIntrisicParameters = new Matrix({matrix: [[2868.4, 0, 1219.5],[0, 2872.1, 1591.7],[0, 0, 1]]});
+      instance._cameraIntrisicParameters = new tracking.Matrix({matrix: [[2868.4, 0, 1219.5],[0, 2872.1, 1591.7],[0, 0, 1]]});
     }
 
     return instance._cameraIntrisicParameters;
@@ -18,7 +18,7 @@
 
   tracking.KeypointTracker.prototype.setCameraIntrisicParameters = function (matrix) {
     if (Array.isArray(matrix)) {
-      this._cameraIntrisicParameters = new Matrix(matrix);
+      this._cameraIntrisicParameters = new tracking.Matrix(matrix);
     }
     else {
       this._cameraIntrisicParameters = matrix;

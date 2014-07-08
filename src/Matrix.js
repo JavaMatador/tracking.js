@@ -75,6 +75,44 @@
     return pixels;
   };
 
+  tracking.Matrix.prototype.invert3by3 = function () {
+    var instance = this,
+        data = instance.data,
+        result = new tracking.Matrix({rows: 3, cols: 3}),
+        resultData = result.data,
+        determinant = instance.determinant3by3_();
+
+    resultData[0][0] = (data[1][1] * data[2][2] - (data[2][1] * data[1][2]))/determinant;
+    resultData[1][0] = -(data[1][0] * data[2][2] - (data[1][2] * data[2][0]))/determinant;
+    resultData[2][0] = (data[1][0] * data[2][1] - (data[1][1] * data[2][0]))/determinant;
+
+    resultData[0][1] = -(data[0][1] * data[2][2] - (data[0][2] * data[2][1]))/determinant;
+    resultData[1][1] = (data[0][0] * data[2][2] - (data[0][2] * data[2][0]))/determinant;
+    resultData[2][1] = -(data[0][0] * data[2][1] - (data[0][1] * data[2][0]))/determinant;
+
+    resultData[0][2] = (data[0][1] * data[1][2] - (data[0][2] * data[1][1]))/determinant;
+    resultData[1][2] = -(data[0][0] * data[1][2] - (data[0][2] * data[1][0]))/determinant;
+    resultData[2][2] = (data[0][0] * data[1][1] - (data[0][1] * data[1][0]))/determinant;
+
+    return result;
+  };
+
+  tracking.Matrix.prototype.determinant3by3_ = function () {
+    var instance = this,
+        data = instance.data,
+        result;
+
+    result = data[0][0] * data[1][1] * data[2][2];
+    result += data[1][0] * data[2][1] * data[0][2];
+    result += data[2][0] * data[0][1] * data[1][2];
+
+    result -= data[0][2] * data[1][1] * data[2][0];
+    result -= data[1][2] * data[2][1] * data[0][0];
+    result -= data[2][2] * data[0][1] * data[1][0];
+
+    return result;
+  };
+
   tracking.Matrix.prototype.multiply = function(matrix) {
     var instance = this,
       thisMatrix = instance.data,
