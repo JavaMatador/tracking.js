@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+
+  <title>tracking.js</title>
+
+  <meta charset="utf-8">
+
+  <script src="../build/tracking.js"></script>
+  <script src="assets/numeric.js"></script>
+  <script src="../assets/three.js"></script>
+
+</head>
+<body>
+  <video id="video" preload autoplay loop muted controls>
+    <source src="assets/color.mp4"  type="video/mp4">
+    <source src="assets/color.webm" type="video/webm">
+  </video>
+
+  <div id="template" style="width: 320px; height: 240px"></div>
+
+  <script>
+    window.onload = function() {
+      var video = tracking.one('#video');
+
+      var templateCar = new tracking.Template('/tracking.js/examples/assets/car.js', '/tracking.js/examples/assets/textures/gtare.jpg', 
+      640, 360);
+      var tracker = new tracking.KeypointTracker(templateCar);
+
+      tracking.track('#video', tracker);
+
+      tracker.onFound = function(payload) {
+
+      };
+
+      tracker.onNotFound = function() {
+
+      };
+    };
+  </script>
+
+</body>
+</html>

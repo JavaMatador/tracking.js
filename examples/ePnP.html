@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body>
+  
+  <div class="viewport"></div>
+
+  <script src="../assets/three.min.js"></script>
+
+  <script id="vertexshader" type="x-shader/x-vertex">
+    varying vec3 vPosition;
+
+    void main() {
+
+        // set the vNormal value with
+        // the attribute value passed
+        // in by Three.js
+        vPosition = position;
+
+        gl_Position = projectionMatrix 
+                      modelViewMatrix 
+                      vec4(position,1.0);
+    }
+  </script>
+
+  <script id="fragmentshader" type="x-shader/x-fragment">
+    varying vec3 vPosition;
+
+    void main() {
+
+      float m = min(vPosition[0], min(vPosition[1], vPosition[2])) - 1.0;
+      float M = max(vPosition[0], max(vPosition[1], vPosition[2])) - m;
+
+      gl_FragColor = vec4((vPosition[0]-m)/M, (vPosition[1]-m)/M, (vPosition[2]-m)/M, 1.0-(1.0/M));
+    }
+  </script>
+
+  <script>
+  
+    var container, scene, renderer, camera, light, clock, loader;
+    var WIDTH, HEIGHT, VIEW_ANGLE, ASPECT, NEAR, FAR;
+
+    container = document.querySelector('.viewport');
+
+    clock = new THREE.Clock();
+
+    WIDTH = window.innerWidth,
+    HEIGHT = window.innerHeight;
+
+    VIEW_ANGLE = 45,
+    ASPECT = WIDTH / HEIGHT,
+    NEAR = 1,
+    FAR = 10000;
+
+    scene = new THREE.Scene();
+
+    renderer = new THREE.WebGLRenderer({antialias: true ,clearColor: 0x00000, clearAlpha: 0});
+
+    renderer.setSize(WIDTH, HEIGHT);
+
+    container.appendChild(renderer.domElement);
+
+    camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+
+    camera.position.set(0, 100, 300);
+    camera.rotation.x = -Math.PI / 12;
+
+    scene.add(camera);
+
+    loader = new THREE.JSONLoader();
+    var mesh;
+    loader.load('assets/car.js', function (geometry, materials) {
+      var shaderMaterial = new THREE.ShaderMaterial({
+          vertexShader:   document.getElementById('vertexshader').text,
+          fragmentShader: document.getElementById('fragmentshader').text
+      });
+      
+      mesh = new THREE.Mesh(
+        geometry,
+        shaderMaterial
+      );
+
+      mesh.rotation.y = -Math.PI/5;
+
+      scene.add(mesh);
+      render();
+    });
+
+    // var texture = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter, format: THREE.RGBFormat, type: THREE.FloatType } );
+
+    function render() {
+      renderer.render(scene, camera/*, texture*/);
+      var gl = renderer.getContext();
+
+      var pixels = new Uint8Array(1438  * 476 * 4);
+      gl.readPixels( 0, 0, 1438, 476, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    }
+  </script>
+</body>
+</html>

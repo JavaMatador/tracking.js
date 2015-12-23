@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+
+  <title>tracking.js - hello world</title>
+
+  <meta charset="utf-8">
+
+  <script src="../assets/three.js"></script>
+
+  <style>
+  #rect {
+    border: 2px solid magenta;
+    height: 80px;
+    left: -1000px;
+    position: absolute;
+    top: -1000px;
+    width: 120px;
+  }
+  </style>
+</head>
+<body>
+  <div class="viewport"></div>
+
+  <script>
+    var container, scene, renderer, camera, light, clock, loader;
+    var WIDTH, HEIGHT, VIEW_ANGLE, ASPECT, NEAR, FAR;
+
+    container = document.querySelector('.viewport');
+
+    clock = new THREE.Clock();
+
+    WIDTH = window.innerWidth,
+    HEIGHT = window.innerHeight;
+
+    VIEW_ANGLE = 45,
+    ASPECT = WIDTH / HEIGHT,
+    NEAR = 1,
+    FAR = 10000;
+
+    scene = new THREE.Scene();
+
+    renderer = new THREE.WebGLRenderer({antialias: true});
+
+    renderer.setSize(WIDTH, HEIGHT);
+
+    container.appendChild(renderer.domElement);
+
+    camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+
+    camera.position.set(0, 100, 300);
+    camera.rotation.x = -Math.PI / 12;
+
+    scene.add(camera);
+
+    light = new THREE.DirectionalLight(0xffffff);
+
+    light.position.set(0, 100, 60);
+
+    scene.add(light);
+
+    loader = new THREE.JSONLoader();
+    var mesh;
+    loader.load('/tracking.js/examples/assets/car.js', function (geometry, materials) {
+      var textureLoader = new THREE.TextureLoader();
+      textureLoader.load('/tracking.js/examples/assets/textures/gtare.jpg', function (texture) {
+        var material = new THREE.MeshLambertMaterial({
+            map: texture,
+            colorAmbient: [0.480000026226044, 0.480000026226044, 0.480000026226044],
+            colorDiffuse: [0.480000026226044, 0.480000026226044, 0.480000026226044],
+            colorSpecular: [0.8999999761581421, 0.8999999761581421, 0.8999999761581421]
+          });
+
+        mesh = new THREE.Mesh(
+          geometry,
+          material
+        );
+        scene.add(mesh);
+        render();
+      });
+    });
+
+    function render() {
+      requestAnimationFrame(render);
+      var start = new Date();
+     renderer.render(scene, camera);
+     console.log((new Date()) - start);
+    }
+  </script>
+</body>
+</html>
